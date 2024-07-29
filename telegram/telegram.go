@@ -24,18 +24,18 @@ func NewBot(token string) {
 		panic(err)
 	}
 
+	b.RegisterHandler(bot.HandlerTypeMessageText, "/hello", bot.MatchTypeExact, handler)
+
 	b.Start(ctx)
 
 }
 
 func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	if update.Message != nil {
-		client.GetWeatherData(update.Message.Text)
 		b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
-			Text:   update.Message.Text,
+			Text:   "Temperature in " + update.Message.Text + ": " + client.GetWeatherData(update.Message.Text) + "°C",
 		})
 
 	}
-
 }
