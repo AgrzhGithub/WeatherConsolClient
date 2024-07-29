@@ -33,6 +33,7 @@ func GetWeatherData(city string) {
 		fmt.Println("Error unmarshalling weather data", err)
 		return
 	}
+
 	fmt.Printf("The current temperature in %s is %.2fC\n", weatherData.Location.Name, weatherData.Current.Temp)
 
 }
