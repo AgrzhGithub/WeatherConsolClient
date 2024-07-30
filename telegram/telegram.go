@@ -1,16 +1,15 @@
 package telegram
 
 import (
-	"WeatherClient/client"
 	"context"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"os"
 	"os/signal"
+	"strings"
 )
 
 func NewBot(token string) {
-	//print("botStart")
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
@@ -31,11 +30,31 @@ func NewBot(token string) {
 }
 
 func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
-	if update.Message != nil {
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   "Temperature in " + update.Message.Text + ": " + client.GetWeatherData(update.Message.Text) + "°C",
-		})
+	b.SendMessage(ctx, &bot.SendMessageParams{
+		ChatID: update.Message.Chat.ID,
+		Text:   checkInput(update),
+	})
+}
 
+func checkInput(update *models.Update) string {
+	b := &bot.SendMessageParams{}
+	str := strings.Fields(update.Message.Text)
+
+	if update.Message != nil && len(str) == 1 {
+		switch update.Message.Text {
+		case "/start":
+			helloMsg(b, update)
+		case "/help":
+			helpMsg(b, update)
+		default:
+			if strings.HasPrefix(update.Message.Text, "/") {
+				missMsg(b, update)
+			} else {
+				weatherMsg(b, update)
+			}
+		}
+	} else {
+		missMsg(b, update)
 	}
+	return b.Text
 }
